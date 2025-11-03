@@ -79,8 +79,8 @@ htmlcov/
 .pytest_cache/
 
 # Data Files (optional - if you want to ignore large data files)
-# data/historical/*.csv
-# data/historical/*.parquet
+data/historical/*.csv
+data/historical/*.parquet
 
 # Config backups
 config/*.backup
