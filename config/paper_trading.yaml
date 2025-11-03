@@ -1,0 +1,106 @@
+# Paper Trading Configuration
+# Demo trading with virtual money to validate strategies
+
+paper_trading:
+  enabled: true
+  initial_capital: 5.0
+  currency: "USDT"
+  
+  # Strategy selection
+  strategy: "ensemble"  # Options: "rsi_macd", "bollinger", "ml_strategy", "ensemble"
+  
+  # Ensemble configuration (only used if strategy = "ensemble")
+  ensemble:
+    mode: "weighted"  # Options: "voting", "weighted", "unanimous", "confidence"
+    weights:
+      rsi_macd: 0.35       # Best average return
+      random_forest: 0.30  # Best single result
+      xgboost: 0.20        # Best win rate
+      bollinger: 0.15      # Home-run potential
+    confidence_threshold: 0.6  # Minimum confidence to enter trade
+  
+  # Trading pairs
+  symbols:
+    - symbol: "ETHUSDT"
+      timeframe: "1h"
+      leverage: 10
+      enabled: true
+    # - symbol: "BTCUSDT"
+    #   timeframe: "4h"
+    #   leverage: 10
+    #   enabled: false
+  
+  # Risk management
+  risk:
+    max_position_size_pct: 100  # % of capital per trade (100% with 10x leverage = $50 position)
+    stop_loss_atr_multiplier: 2.0
+    take_profit_atr_multiplier: 3.0
+    max_daily_loss_pct: 20  # Stop trading if lose 20% in a day
+    max_open_positions: 1  # Conservative approach
+  
+  # ML models (for ml_strategy and ensemble)
+  ml:
+    models_dir: "./ml/models"
+    auto_load: true
+    retrain_interval_days: 7  # Retrain weekly
+    xgboost_model_prefix: "xgboost"
+    random_forest_model_prefix: "random_forest"
+  
+  # Exchange connection
+  exchange:
+    name: "asterdex"
+    testnet: true  # Use testnet for paper trading
+    api_key: "${ASTERDEX_API_KEY}"
+    api_secret: "${ASTERDEX_API_SECRET}"
+  
+  # Monitoring
+  monitoring:
+    log_level: "INFO"
+    log_trades: true
+    log_signals: true
+    save_trade_history: true
+    trade_history_file: "./logs/paper_trades.csv"
+  
+  # Performance tracking
+  tracking:
+    enabled: true
+    save_interval_minutes: 60  # Save stats every hour
+    metrics_file: "./logs/paper_trading_metrics.json"
+    compare_to_backtest: true
+    backtest_reference:
+      expected_return_pct: 0.5
+      expected_win_rate_pct: 55
+      expected_trades_per_day: 0.4  # ~12 trades/month
+  
+  # Alerts
+  alerts:
+    discord:
+      enabled: false
+      webhook_url: "${DISCORD_WEBHOOK_URL}"
+    telegram:
+      enabled: false
+      bot_token: "${TELEGRAM_BOT_TOKEN}"
+      chat_id: "${TELEGRAM_CHAT_ID}"
+    console:
+      enabled: true
+      on_trade: true
+      on_signal: false
+      on_profit: true
+      on_loss: true
+
+# Safety limits
+safety:
+  emergency_stop:
+    enabled: true
+    trigger_loss_pct: 50  # Stop if lose 50% of capital
+  
+  circuit_breaker:
+    enabled: true
+    max_consecutive_losses: 5  # Stop after 5 losses in a row
+    cooldown_minutes: 60  # Wait 1 hour before resuming
+  
+  sanity_checks:
+    enabled: true
+    check_balance: true
+    check_positions: true
+    check_interval_seconds: 300  # Check every 5 minutes

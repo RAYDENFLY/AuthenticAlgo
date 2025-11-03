@@ -305,7 +305,16 @@ class BacktestEngine:
         
         # Check for entry signal if no position
         if symbol not in self.positions:
-            entry_signal = self.strategy.should_enter(self.current_data)
+            # Check if strategy has generate_signal method
+            if hasattr(self.strategy, 'generate_signal'):
+                entry_signal = self.strategy.generate_signal(self.current_data)
+            else:
+                # Fallback to should_enter for simple strategies
+                should_enter = self.strategy.should_enter(self.current_data)
+                entry_signal = {
+                    'signal': 'BUY' if should_enter else 'HOLD',
+                    'confidence': 1.0 if should_enter else 0.0
+                }
             
             if entry_signal['signal'] != 'HOLD':
                 # Calculate position size
@@ -328,13 +337,25 @@ class BacktestEngine:
         # Check for exit signal if have position
         else:
             position = self.positions[symbol]
-            exit_signal = self.strategy.should_exit(self.current_data, position.quantity > 0)
             
-            if exit_signal['signal'] in ['SELL', 'BUY']:
+            # Check if strategy has generate_signal method for exit
+            if hasattr(self.strategy, 'generate_signal'):
+                exit_signal = self.strategy.generate_signal(self.current_data)
+                should_exit = (exit_signal['signal'] == 'SELL' or 
+                             exit_signal['confidence'] < 0.3)
+            else:
+                # Fallback to should_exit for simple strategies
+                should_exit = self.strategy.should_exit(
+                    self.current_data, 
+                    position_type="long",
+                    entry_price=position.entry_price
+                )
+            
+            if should_exit:
                 self._close_position(
                     position, 
                     current_bar['close'].iloc[0], 
-                    exit_signal.get('reason', 'Strategy signal')
+                    'Strategy exit signal'
                 )
     
     def _calculate_position_size(self, signal: dict, price: float) -> float:

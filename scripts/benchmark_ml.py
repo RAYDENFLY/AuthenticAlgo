@@ -164,14 +164,43 @@ class MLBenchmark:
         # Try GPU if requested (may not work on all systems)
         if use_gpu:
             try:
-                test_model = xgb.XGBClassifier(tree_method='gpu_hist', n_estimators=1)
-                test_model.fit(X_train[:100], y_train[:100])
-                params['tree_method'] = 'gpu_hist'
-                params['predictor'] = 'gpu_predictor'
-                logger.info("✅ GPU acceleration enabled!")
-            except:
-                logger.warning("⚠️ GPU not available, using CPU hist (still fast!)")
+                # Better GPU detection
+                import subprocess
+                try:
+                    # Check if NVIDIA GPU exists
+                    nvidia_smi = subprocess.run(['nvidia-smi'], capture_output=True, timeout=3)
+                    if nvidia_smi.returncode == 0:
+                        logger.info("🎮 NVIDIA GPU detected, testing XGBoost GPU support...")
+                        # XGBoost 3.1+ uses 'device' parameter instead of 'gpu_id'
+                        test_model = xgb.XGBClassifier(
+                            tree_method='gpu_hist',
+                            device='cuda',  # Use 'cuda' or 'cuda:0' for GPU
+                            n_estimators=1
+                        )
+                        test_model.fit(X_train[:100], y_train[:100])
+                        params['tree_method'] = 'gpu_hist'
+                        params['device'] = 'cuda:0'  # Explicitly use GPU 0
+                        logger.info("✅ GPU acceleration enabled! (GTX 1050 Ti)")
+                    else:
+                        raise Exception("No NVIDIA GPU found")
+                except (FileNotFoundError, subprocess.TimeoutExpired):
+                    logger.warning("⚠️ nvidia-smi not found, trying GPU anyway...")
+                    test_model = xgb.XGBClassifier(
+                        tree_method='gpu_hist',
+                        device='cuda',
+                        n_estimators=1
+                    )
+                    test_model.fit(X_train[:100], y_train[:100])
+                    params['tree_method'] = 'gpu_hist'
+                    params['device'] = 'cuda:0'
+                    logger.info("✅ GPU acceleration enabled!")
+            except Exception as e:
+                logger.warning(f"⚠️ GPU not available ({type(e).__name__}: {str(e)[:50]})")
+                logger.info("💡 GPU requires: CUDA toolkit + xgboost compiled with GPU support")
+                logger.info("� Falling back to fast CPU hist algorithm")
                 params['tree_method'] = 'hist'
+        else:
+            logger.info("💻 Using CPU (GPU disabled in config)")
         
         model = xgb.XGBClassifier(**params)
         
@@ -429,7 +458,9 @@ async def main():
     
     # Check GPU availability (will try, fallback to CPU if not available)
     logger.info("🔍 Checking for GPU support...")
-    use_gpu = True  # Will auto-fallback to CPU in train_xgboost if GPU unavailable
+    use_gpu = False  # CPU sufficient for weekly training (0.3s/model, GPU saves only 1-2s total)
+    # Set to True if you have GPU-enabled XGBoost (conda install py-xgboost-gpu)
+    # Note: pip install xgboost does NOT include GPU support
     
     logger.info(f"""
 🧠 ML Benchmark Configuration:
