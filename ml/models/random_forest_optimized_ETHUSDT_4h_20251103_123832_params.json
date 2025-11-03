@@ -1,0 +1,17 @@
+{
+  "params": {
+    "n_estimators": 337,
+    "max_depth": 6,
+    "min_samples_split": 13,
+    "min_samples_leaf": 1,
+    "max_features": "sqrt",
+    "bootstrap": false,
+    "random_state": 42,
+    "n_jobs": -1
+  },
+  "accuracy": 0.9556213017751479,
+  "symbol": "ETHUSDT",
+  "timeframe": "4h",
+  "model_type": "random_forest",
+  "timestamp": "20251103_123832"
+}

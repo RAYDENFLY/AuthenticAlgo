@@ -21,12 +21,7 @@ import joblib
 import json
 
 from core.logger import get_logger
-from core.config import config
-from ml.feature_engine import FeatureEngine
-from indicators.trend import SMA, EMA, ADX
-from indicators.momentum import RSI, MACD, StochasticOscillator
-from indicators.volatility import BollingerBands, ATR
-from indicators.volume import OBV
+import ta  # Technical Analysis library
 
 logger = get_logger()
 
@@ -43,7 +38,6 @@ class MLOptimizer:
     
     def __init__(self):
         self.logger = logger
-        self.feature_engine = FeatureEngine(config)
         
     def load_and_prepare_data(self, symbol: str, timeframe: str):
         """Load data and prepare features"""
@@ -110,12 +104,12 @@ class MLOptimizer:
         return X, y, data
     
     def _add_enhanced_features(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Add 50+ technical indicators for better prediction"""
+        """Add 50+ technical indicators for better prediction using ta library"""
         
         # Trend indicators
         for period in [5, 10, 14, 20, 50, 100, 200]:
-            df[f'sma_{period}'] = SMA.calculate(df, period)
-            df[f'ema_{period}'] = EMA.calculate(df, period)
+            df[f'sma_{period}'] = ta.trend.sma_indicator(df['close'], window=period)
+            df[f'ema_{period}'] = ta.trend.ema_indicator(df['close'], window=period)
             
         # Price position relative to MAs
         for period in [10, 20, 50]:
@@ -123,43 +117,40 @@ class MLOptimizer:
         
         # Multiple RSI periods
         for period in [7, 14, 21, 28]:
-            df[f'rsi_{period}'] = RSI.calculate(df, period)
+            df[f'rsi_{period}'] = ta.momentum.rsi(df['close'], window=period)
         
         # MACD variations
-        macd_12_26 = MACD.calculate(df, 12, 26, 9)
-        df['macd'] = macd_12_26['macd']
-        df['macd_signal'] = macd_12_26['signal']
-        df['macd_hist'] = macd_12_26['histogram']
-        
-        macd_5_35 = MACD.calculate(df, 5, 35, 5)
-        df['macd_fast'] = macd_5_35['macd']
+        macd_indicator = ta.trend.MACD(df['close'])
+        df['macd'] = macd_indicator.macd()
+        df['macd_signal'] = macd_indicator.macd_signal()
+        df['macd_hist'] = macd_indicator.macd_diff()
         
         # Bollinger Bands (multiple periods)
         for period in [10, 20]:
-            bb = BollingerBands.calculate(df, period, 2)
-            df[f'bb_upper_{period}'] = bb['bb_upper']
-            df[f'bb_middle_{period}'] = bb['bb_middle']
-            df[f'bb_lower_{period}'] = bb['bb_lower']
-            df[f'bb_width_{period}'] = (bb['bb_upper'] - bb['bb_lower']) / bb['bb_middle']
-            df[f'bb_position_{period}'] = (df['close'] - bb['bb_lower']) / (bb['bb_upper'] - bb['bb_lower'])
+            bb = ta.volatility.BollingerBands(df['close'], window=period, window_dev=2)
+            df[f'bb_upper_{period}'] = bb.bollinger_hband()
+            df[f'bb_middle_{period}'] = bb.bollinger_mavg()
+            df[f'bb_lower_{period}'] = bb.bollinger_lband()
+            df[f'bb_width_{period}'] = bb.bollinger_wband()
+            df[f'bb_position_{period}'] = bb.bollinger_pband()
         
         # ATR (volatility)
         for period in [7, 14, 21]:
-            df[f'atr_{period}'] = ATR.calculate(df, period)
+            df[f'atr_{period}'] = ta.volatility.average_true_range(df['high'], df['low'], df['close'], window=period)
             df[f'atr_pct_{period}'] = df[f'atr_{period}'] / df['close']
         
         # ADX (trend strength)
         for period in [14, 20]:
-            df[f'adx_{period}'] = ADX.calculate(df, period)
+            df[f'adx_{period}'] = ta.trend.adx(df['high'], df['low'], df['close'], window=period)
         
         # Stochastic
         for period in [14, 21]:
-            stoch = StochasticOscillator.calculate(df, period)
-            df[f'stoch_k_{period}'] = stoch['stoch_k']
-            df[f'stoch_d_{period}'] = stoch['stoch_d']
+            stoch = ta.momentum.StochasticOscillator(df['high'], df['low'], df['close'], window=period, smooth_window=3)
+            df[f'stoch_k_{period}'] = stoch.stoch()
+            df[f'stoch_d_{period}'] = stoch.stoch_signal()
         
         # Volume features
-        df['obv'] = OBV.calculate(df)
+        df['obv'] = ta.volume.on_balance_volume(df['close'], df['volume'])
         df['volume_sma_10'] = df['volume'].rolling(10).mean()
         df['volume_sma_20'] = df['volume'].rolling(20).mean()
         df['volume_ratio'] = df['volume'] / df['volume_sma_20']

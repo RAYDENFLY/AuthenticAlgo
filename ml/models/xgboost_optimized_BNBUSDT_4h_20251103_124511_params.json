@@ -1,0 +1,21 @@
+{
+  "params": {
+    "max_depth": 8,
+    "learning_rate": 0.0969193339743378,
+    "n_estimators": 433,
+    "min_child_weight": 1,
+    "gamma": 0.030322345051196034,
+    "subsample": 0.9134336554829187,
+    "colsample_bytree": 0.6090261964404946,
+    "reg_alpha": 0.48284864646139225,
+    "reg_lambda": 0.6238774947878178,
+    "tree_method": "hist",
+    "random_state": 42,
+    "n_jobs": -1
+  },
+  "accuracy": 1.0,
+  "symbol": "BNBUSDT",
+  "timeframe": "4h",
+  "model_type": "xgboost",
+  "timestamp": "20251103_124511"
+}

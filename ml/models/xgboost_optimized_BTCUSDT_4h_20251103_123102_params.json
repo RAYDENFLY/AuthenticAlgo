@@ -1,0 +1,21 @@
+{
+  "params": {
+    "max_depth": 5,
+    "learning_rate": 0.03154968370618544,
+    "n_estimators": 323,
+    "min_child_weight": 6,
+    "gamma": 1.2547776795568648,
+    "subsample": 0.8406446238322121,
+    "colsample_bytree": 0.7159402262028687,
+    "reg_alpha": 0.8538116981236032,
+    "reg_lambda": 0.5778667386505256,
+    "tree_method": "hist",
+    "random_state": 42,
+    "n_jobs": -1
+  },
+  "accuracy": 0.9526627218934911,
+  "symbol": "BTCUSDT",
+  "timeframe": "4h",
+  "model_type": "xgboost",
+  "timestamp": "20251103_123102"
+}

@@ -1,0 +1,149 @@
+{
+  "technical_analysis": {
+    "RSI+MACD": {
+      "BTCUSDT_1h": {
+        "return": -0.21,
+        "win_rate": 42.3,
+        "trades": 52
+      },
+      "BTCUSDT_4h": {
+        "return": 0.49,
+        "win_rate": 50.0,
+        "trades": 8
+      },
+      "ETHUSDT_1h": {
+        "return": 0.14,
+        "win_rate": 48.1,
+        "trades": 54
+      },
+      "ETHUSDT_4h": {
+        "return": 0.25,
+        "win_rate": 50.0,
+        "trades": 8
+      },
+      "BNBUSDT_1h": {
+        "return": 0.11,
+        "win_rate": 46.3,
+        "trades": 54
+      },
+      "BNBUSDT_4h": {
+        "return": -0.07,
+        "win_rate": 37.5,
+        "trades": 8
+      },
+      "avg_return": 0.13,
+      "avg_win_rate": 45.7,
+      "consistency": "Medium"
+    },
+    "Bollinger_Bands": {
+      "BTCUSDT_1h": {
+        "return": -0.7,
+        "win_rate": 44.4,
+        "trades": 54
+      },
+      "BTCUSDT_4h": {
+        "return": 1.94,
+        "win_rate": 60.0,
+        "trades": 10
+      },
+      "ETHUSDT_1h": {
+        "return": -0.31,
+        "win_rate": 45.3,
+        "trades": 53
+      },
+      "ETHUSDT_4h": {
+        "return": -0.92,
+        "win_rate": 20.0,
+        "trades": 10
+      },
+      "BNBUSDT_1h": {
+        "return": -0.46,
+        "win_rate": 42.6,
+        "trades": 54
+      },
+      "BNBUSDT_4h": {
+        "return": -0.88,
+        "win_rate": 30.0,
+        "trades": 10
+      },
+      "avg_return": -0.26,
+      "avg_win_rate": 40.4,
+      "consistency": "Low"
+    }
+  },
+  "ml_models": {
+    "xgboost_BNBUSDT_1h": {
+      "symbol_tf": "BNBUSDT_1h",
+      "training_accuracy": 99.89738327347357,
+      "test_accuracy": 85.7707509881423,
+      "win_rate": 91.96428571428572,
+      "trades": 112,
+      "total_return": 0.9110295145620824,
+      "avg_return": 0.8134192094304308,
+      "status": "PASS"
+    },
+    "xgboost_BTCUSDT_1h": {
+      "symbol_tf": "BTCUSDT_1h",
+      "training_accuracy": 95.6900974858902,
+      "test_accuracy": 96.04743083003952,
+      "win_rate": 100.0,
+      "trades": 65,
+      "total_return": 0.5274409930244894,
+      "avg_return": 0.8114476815761376,
+      "status": "PASS"
+    },
+    "xgboost_ETHUSDT_1h": {
+      "symbol_tf": "ETHUSDT_1h",
+      "training_accuracy": 94.20215495125706,
+      "test_accuracy": 92.88537549407114,
+      "win_rate": 100.0,
+      "trades": 77,
+      "total_return": 0.7770189720076119,
+      "avg_return": 1.0091155480618337,
+      "status": "PASS"
+    },
+    "random_forest_BNBUSDT_1h": {
+      "symbol_tf": "BNBUSDT_1h",
+      "training_accuracy": 98.56336582863008,
+      "test_accuracy": 49.01185770750988,
+      "win_rate": 66.66666666666666,
+      "trades": 126,
+      "total_return": 0.4474678742543956,
+      "avg_return": 0.3551332335352346,
+      "status": "FAIL"
+    },
+    "random_forest_ETHUSDT_1h": {
+      "symbol_tf": "ETHUSDT_1h",
+      "training_accuracy": 93.22729604925604,
+      "test_accuracy": 94.07114624505928,
+      "win_rate": 98.64864864864865,
+      "trades": 74,
+      "total_return": 0.7625471636922284,
+      "avg_return": 1.0304691401246329,
+      "status": "PASS"
+    }
+  },
+  "hybrid": {
+    "BTCUSDT_1h": {
+      "return": 0.45,
+      "win_rate": 85.0,
+      "trades": 35,
+      "description": "RSI+MACD + XGBoost voting"
+    },
+    "ETHUSDT_1h": {
+      "return": 0.52,
+      "win_rate": 87.5,
+      "trades": 42,
+      "description": "RSI+MACD + Random Forest voting"
+    },
+    "BNBUSDT_1h": {
+      "return": 0.38,
+      "win_rate": 78.0,
+      "trades": 28,
+      "description": "RSI+MACD + XGBoost voting"
+    },
+    "avg_return": 0.45,
+    "avg_win_rate": 83.5,
+    "consistency": "High"
+  }
+}

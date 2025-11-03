@@ -1,0 +1,21 @@
+{
+  "params": {
+    "max_depth": 8,
+    "learning_rate": 0.010725209743171996,
+    "n_estimators": 488,
+    "min_child_weight": 9,
+    "gamma": 1.0616955533913808,
+    "subsample": 0.5909124836035503,
+    "colsample_bytree": 0.5917022549267169,
+    "reg_alpha": 0.3042422429595377,
+    "reg_lambda": 0.5247564316322378,
+    "tree_method": "hist",
+    "random_state": 42,
+    "n_jobs": -1
+  },
+  "accuracy": 0.8313609467455622,
+  "symbol": "ETHUSDT",
+  "timeframe": "4h",
+  "model_type": "xgboost",
+  "timestamp": "20251103_123725"
+}
