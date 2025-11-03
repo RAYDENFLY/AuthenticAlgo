@@ -8,8 +8,10 @@ import os
 from dotenv import load_dotenv
 from execution.asterdex import AsterDEXFutures
 from core.logger import setup_logger
+from loguru import logger
 
-logger = setup_logger(__name__)
+# Setup logger once
+setup_logger()
 
 # Load environment variables
 load_dotenv()

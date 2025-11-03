@@ -18,6 +18,16 @@ class ExchangeError(BotTradingException):
     pass
 
 
+class AuthenticationError(ExchangeError):
+    """Raised when there's an authentication error"""
+    pass
+
+
+class RateLimitError(ExchangeError):
+    """Raised when rate limit is exceeded"""
+    pass
+
+
 class StrategyError(BotTradingException):
     """Raised when there's a strategy-related error"""
     pass

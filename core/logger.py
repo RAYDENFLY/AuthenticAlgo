@@ -14,7 +14,7 @@ def setup_logger(
     log_file_path: Optional[str] = None,
     rotation: str = "1 day",
     retention: str = "30 days",
-) -> None:
+):
     """
     Setup logger with custom configuration
     
@@ -24,6 +24,9 @@ def setup_logger(
         log_file_path: Path to log file
         rotation: Log rotation interval
         retention: Log retention period
+        
+    Returns:
+        logger: Configured logger instance
     """
     # Remove default handler
     logger.remove()
@@ -55,6 +58,7 @@ def setup_logger(
         )
     
     logger.info(f"Logger initialized with level: {log_level}")
+    return logger
 
 
 def get_logger():

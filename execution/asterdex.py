@@ -16,7 +16,9 @@ from datetime import datetime
 from core.logger import setup_logger
 from core.exceptions import ExchangeError, AuthenticationError, RateLimitError
 
-logger = setup_logger(__name__)
+# Setup logger
+setup_logger()
+from loguru import logger
 
 
 class AsterDEXFutures:
