@@ -1,0 +1,15 @@
+{
+  "timestamp": "2025-11-03T10:45:00",
+  "rsi_macd": {
+    "rsi_period": 14,
+    "rsi_oversold": 28,
+    "rsi_overbought": 72,
+    "macd_fast": 12,
+    "macd_slow": 26
+  },
+  "bollinger_bands": {
+    "bb_period": 20,
+    "bb_std": 2.0,
+    "use_volume": true
+  }
+}
