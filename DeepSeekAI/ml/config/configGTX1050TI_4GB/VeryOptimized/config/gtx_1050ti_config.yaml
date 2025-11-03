@@ -1,0 +1,99 @@
+# GTX 1050 Ti 4GB Optimized Configuration
+# Special setup for limited GPU memory
+
+# Core Settings
+initial_capital: 10000
+trading_mode: "paper"  # paper, backtest, live
+
+# Data Settings
+data:
+  source: "binance"
+  symbols: ["BTC/USDT", "ETH/USDT"]  # Limit symbols untuk hemat memory
+  timeframe: "1h"
+  history_days: 90  # 3 bulan data, jangan terlalu banyak
+  update_interval: 300  # 5 menit
+
+# Feature Engineering - OPTIMIZED untuk 1050Ti
+feature_engineering:
+  lookback_periods: [10, 20]        # Reduced dari [5,10,20,50]
+  technical_indicators:
+    - "rsi"
+    - "macd" 
+    - "bollinger_bands"
+    - "atr"
+    - "obv"
+  price_features:
+    - "returns"
+    - "volatility"
+    - "momentum"
+  volume_features:
+    - "volume_ratio"
+  time_features:
+    - "hour"
+    - "day_of_week"
+  feature_scaling: "standard"
+  feature_selection: true           # CRITICAL untuk hemat memory
+  n_features: 25                    # Max 25 features
+
+# Model Training - OPTIMIZED untuk 1050Ti
+model_training:
+  model_types: ["xgb", "rf"]        # Skip linear & LSTM dulu
+  validation_method: "timeseries"
+  test_size: 0.3                    # More testing data
+  n_splits: 3                       # Reduced dari 5
+  hyperparameter_optimization: false # Skip grid search untuk hemat memory
+  models_dir: "ml/models_1050ti"
+  
+  # XGBoost Optimized Parameters
+  xgboost_params:
+    n_estimators: 100
+    max_depth: 6
+    learning_rate: 0.1
+    subsample: 0.8
+    colsample_bytree: 0.8
+    tree_method: "gpu_hist"        # Use GPU acceleration
+    predictor: "gpu_predictor"
+    
+  # Random Forest Optimized Parameters  
+  random_forest_params:
+    n_estimators: 50               # Reduced dari 100
+    max_depth: 8
+    min_samples_split: 5
+    n_jobs: -1                     # Use semua CPU cores
+
+# Prediction Settings
+prediction:
+  model_types: ["xgb", "rf"]
+  confidence_threshold: 0.65
+  use_ensemble: true
+  ensemble_weights:
+    xgb: 0.6
+    rf: 0.4
+  prediction_cache_size: 50
+
+# Risk Management - Conservative untuk ML
+risk_management:
+  max_position_size_pct: 3.0        # Conservative sizing
+  max_daily_loss_pct: 2.0
+  max_drawdown_pct: 10.0
+  risk_per_trade_pct: 1.0
+  max_portfolio_exposure_pct: 15.0
+  circuit_breakers:
+    max_consecutive_losses: 2
+    volatility_threshold: 8.0
+
+# Strategies - Focus on ML strategy
+strategies:
+  enabled:
+    - "ML_Strategy"
+    - "RSI_MACD_Strategy"  # Fallback strategy
+  ml_strategy:
+    confidence_threshold: 0.7
+    use_fallback: true
+    fallback_strategy: "RSI_MACD_Strategy"
+
+# GPU Memory Management
+gpu_settings:
+  memory_limit_mb: 3072             # 3GB dari 4GB, sisakan untuk system
+  memory_growth: true
+  per_process_gpu_memory_fraction: 0.75

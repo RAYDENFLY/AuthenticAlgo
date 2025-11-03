@@ -1,0 +1,28 @@
+feature_engineering:
+  lookback_periods: [10, 20]
+  technical_indicators: ['rsi', 'macd', 'bollinger_bands', 'atr']
+  price_features: ['returns', 'volatility', 'momentum']
+  volume_features: ['volume_ratio']
+  time_features: ['hour', 'day_of_week']
+  feature_scaling: 'standard'
+  feature_selection: true
+  n_features: 30
+
+model_training:
+  model_types: ['xgb', 'rf', 'linear']  # Skip LSTM atau gunakan kecil
+  validation_method: 'timeseries'
+  test_size: 0.2
+  n_splits: 3
+  hyperparameter_optimization: false    # Save memory
+  
+  # Khusus LSTM (jika dipaksakan)
+  lstm_params:
+    sequence_length: 20
+    batch_size: 16
+    units: [32, 16]
+    epochs: 50
+
+prediction:
+  model_types: ['xgb', 'rf']
+  confidence_threshold: 0.7
+  use_ensemble: true

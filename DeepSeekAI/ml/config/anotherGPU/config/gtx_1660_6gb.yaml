@@ -1,0 +1,90 @@
+# GTX 1660 6GB DDR5 Optimized Configuration
+# Good for medium-sized models and features
+
+initial_capital: 10000
+trading_mode: "paper"
+
+data:
+  source: "binance"
+  symbols: ["BTC/USDT", "ETH/USDT", "ADA/USDT", "DOT/USDT"]
+  timeframe: "1h"
+  history_days: 180  # 6 bulan data
+  update_interval: 300
+
+feature_engineering:
+  lookback_periods: [5, 10, 20, 50]
+  technical_indicators:
+    - "rsi"
+    - "macd"
+    - "bollinger_bands"
+    - "atr"
+    - "obv"
+    - "adx"
+    - "stochastic"
+  price_features:
+    - "returns"
+    - "volatility"
+    - "momentum"
+    - "price_acceleration"
+  volume_features:
+    - "volume_ratio"
+    - "volume_velocity"
+  time_features:
+    - "hour"
+    - "day_of_week"
+    - "is_weekend"
+  feature_scaling: "standard"
+  feature_selection: true
+  n_features: 50  # Increased from 25 (1050Ti)
+
+model_training:
+  model_types: ["xgb", "rf", "linear", "lstm"]  # Added LSTM
+  validation_method: "timeseries"
+  test_size: 0.25
+  n_splits: 5
+  hyperparameter_optimization: true  # Enabled for better performance
+  models_dir: "ml/models_1660"
+  
+  xgboost_params:
+    n_estimators: 150
+    max_depth: 8
+    learning_rate: 0.1
+    subsample: 0.8
+    colsample_bytree: 0.8
+    tree_method: "gpu_hist"
+    predictor: "gpu_predictor"
+    
+  random_forest_params:
+    n_estimators: 100
+    max_depth: 12
+    min_samples_split: 3
+    n_jobs: -1
+    
+  lstm_params:
+    sequence_length: 30
+    batch_size: 32
+    units: [64, 32]  # Larger than 1050Ti
+    dense_units: [16]
+    epochs: 100
+    dropout_rate: 0.2
+
+prediction:
+  model_types: ["xgb", "rf", "lstm"]
+  confidence_threshold: 0.7
+  use_ensemble: true
+  ensemble_weights:
+    xgb: 0.5
+    rf: 0.3
+    lstm: 0.2
+
+risk_management:
+  max_position_size_pct: 4.0
+  max_daily_loss_pct: 3.0
+  max_drawdown_pct: 12.0
+  risk_per_trade_pct: 1.5
+  max_portfolio_exposure_pct: 20.0
+
+gpu_settings:
+  memory_limit_mb: 5120  # 5GB dari 6GB
+  memory_growth: true
+  per_process_gpu_memory_fraction: 0.85

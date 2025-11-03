@@ -1,0 +1,240 @@
+# Trading Bot Configuration
+
+# General Settings
+general:
+  name: "Bot Trading V2"
+  version: "2.0.0"
+  timezone: "UTC"
+
+# Exchange Configuration
+exchanges:
+  binance:
+    enabled: true
+    markets: ["BTC/USDT", "ETH/USDT", "BNB/USDT"]
+    timeframes: ["1m", "5m", "15m", "1h", "4h", "1d"]
+    testnet: true
+    
+  asterdex:
+    enabled: false
+    markets: []
+    timeframes: ["5m", "15m", "1h"]
+
+# Trading Strategy Configuration
+strategies:
+  - name: "RSI_MACD_Strategy"
+    enabled: true
+    timeframe: "15m"
+    markets: ["BTC/USDT"]
+    parameters:
+      rsi_period: 14
+      rsi_overbought: 70
+      rsi_oversold: 30
+      macd_fast: 12
+      macd_slow: 26
+      macd_signal: 9
+      
+  - name: "Bollinger_Bands_Strategy"
+    enabled: false
+    timeframe: "1h"
+    markets: ["ETH/USDT"]
+    parameters:
+      bb_period: 20
+      bb_std: 2
+      volume_threshold: 1.5
+
+# Risk Management
+risk_management:
+  max_position_size_pct: 10  # % of capital
+  max_positions: 3
+  max_daily_loss_pct: 5
+  max_drawdown_pct: 15
+  stop_loss:
+    enabled: true
+    type: "percentage"  # percentage, atr, fixed
+    value: 2  # 2% for percentage
+  take_profit:
+    enabled: true
+    type: "percentage"
+    value: 5  # 5%
+  trailing_stop:
+    enabled: true
+    activation_pct: 3
+    trailing_pct: 1.5
+
+# Position Sizing
+position_sizing:
+  method: "fixed_percentage"  # fixed_percentage, kelly, volatility_based
+  parameters:
+    percentage: 10  # for fixed_percentage
+    kelly_fraction: 0.25  # for kelly criterion
+
+# Technical Indicators (Global Settings)
+indicators:
+  moving_averages:
+    - type: "SMA"
+      periods: [20, 50, 200]
+    - type: "EMA"
+      periods: [9, 21, 55]
+      
+  momentum:
+    rsi:
+      period: 14
+      overbought: 70
+      oversold: 30
+    stochastic:
+      k_period: 14
+      d_period: 3
+      smooth: 3
+      
+  trend:
+    macd:
+      fast: 12
+      slow: 26
+      signal: 9
+    adx:
+      period: 14
+      threshold: 25
+      
+  volatility:
+    bollinger_bands:
+      period: 20
+      std_dev: 2
+    atr:
+      period: 14
+      
+  volume:
+    vwap:
+      enabled: true
+    obv:
+      enabled: true
+
+# Machine Learning Configuration
+machine_learning:
+  enabled: false
+  
+  # GPU Configuration (for GTX 1050 Ti or similar)
+  gpu_optimization:
+    enabled: true
+    memory_limit_mb: 3072          # 3GB limit for 4GB GPUs
+    use_gpu_acceleration: true      # Enable GPU for XGBoost
+  
+  # Feature Engineering
+  feature_engineering:
+    lookback_periods: [10, 20]     # Reduced for memory optimization
+    technical_indicators:
+      - "rsi"
+      - "macd"
+      - "bollinger_bands"
+      - "atr"
+      - "obv"
+    price_features:
+      - "returns"
+      - "volatility"
+      - "momentum"
+    volume_features:
+      - "volume_ratio"
+    time_features:
+      - "hour"
+      - "day_of_week"
+    feature_scaling: "standard"
+    feature_selection: true         # CRITICAL for performance
+    n_features: 30                  # Max features (25-30 for 1050 Ti)
+  
+  # Model Training
+  model_training:
+    model_types: ["xgb", "rf"]     # Skip LSTM for memory
+    validation_method: "timeseries"
+    test_size: 0.3
+    n_splits: 3
+    hyperparameter_optimization: false  # Disable to save memory
+    models_dir: "ml/models"
+    
+    # XGBoost with GPU acceleration
+    xgboost_params:
+      n_estimators: 100
+      max_depth: 6
+      learning_rate: 0.1
+      subsample: 0.8
+      colsample_bytree: 0.8
+      tree_method: "gpu_hist"       # GPU acceleration
+      predictor: "gpu_predictor"
+    
+    # Random Forest optimized
+    random_forest_params:
+      n_estimators: 50
+      max_depth: 8
+      min_samples_split: 5
+      n_jobs: -1
+  
+  # Prediction
+  prediction:
+    model_types: ["xgb", "rf"]
+    confidence_threshold: 0.7
+    use_ensemble: true
+    ensemble_weights:
+      xgb: 0.6
+      rf: 0.4
+    prediction_cache_size: 50
+  
+  # Model Management
+  retrain_interval_hours: 24
+  auto_retrain: false
+  
+  # Performance Notes:
+  # - For GTX 1050 Ti 4GB: Use config above (30 features, xgb+rf only)
+  # - For better GPUs: Increase n_features to 50, add 'lstm', enable hyperparameter_optimization
+  # - For CPU only: Remove gpu_hist/gpu_predictor, use 'hist' tree_method instead
+
+# Backtesting
+backtesting:
+  initial_capital: 10000
+  commission: 0.001  # 0.1%
+  slippage: 0.0005  # 0.05%
+  start_date: "2023-01-01"
+  end_date: "2024-12-31"
+
+# Monitoring
+monitoring:
+  telegram:
+    enabled: false
+    bot_token: "${TELEGRAM_BOT_TOKEN}"  # Get from @BotFather
+    chat_id: "${TELEGRAM_CHAT_ID}"      # Get from @userinfobot
+    events: ["trade_opened", "trade_closed", "error", "daily_summary"]
+    
+  discord:
+    enabled: false
+    webhook_url: "${DISCORD_WEBHOOK_URL}"  # Discord channel webhook
+    username: "Trading Bot"
+    avatar_url: ""
+    events: ["trade_opened", "trade_closed", "error", "daily_summary"]
+  
+  dashboard:
+    enabled: false
+    host: "localhost"
+    port: 8501
+    refresh_interval: 5  # seconds
+    theme: "dark"
+    show_detailed_logs: false
+    
+  logging:
+    level: "INFO"
+    format: "%(asctime)s | %(levelname)s | %(module)s | %(message)s"
+    rotation: "1 day"
+    retention: "30 days"
+
+# Database
+database:
+  type: "sqlite"  # sqlite, postgresql
+  sqlite:
+    path: "database/trading_bot.db"
+  postgresql:
+    host: "localhost"
+    port: 5432
+    database: "trading_bot"
+    
+# Performance
+performance:
+  cache_enabled: true
+  cache_ttl: 300  # seconds
+  max_workers: 4
+  async_enabled: true

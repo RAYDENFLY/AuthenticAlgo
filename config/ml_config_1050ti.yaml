@@ -1,0 +1,113 @@
+# GTX 1050 Ti 4GB Optimized ML Configuration
+# Special configuration for limited GPU memory
+# Use this config for training with GTX 1050 Ti or similar 4GB GPUs
+
+# Feature Engineering - OPTIMIZED
+feature_engineering:
+  # Reduced lookback periods to limit features
+  lookback_periods: [10, 20]  # Only 2 periods instead of [5,10,20,50]
+  
+  # Limited technical indicators
+  technical_indicators:
+    - "rsi"
+    - "macd"
+    - "bollinger_bands"
+    - "atr"
+    - "obv"
+  
+  # Essential price features only
+  price_features:
+    - "returns"
+    - "volatility"
+    - "momentum"
+  
+  # Minimal volume features
+  volume_features:
+    - "volume_ratio"
+  
+  # Basic time features
+  time_features:
+    - "hour"
+    - "day_of_week"
+  
+  # Feature scaling and selection
+  feature_scaling: "standard"
+  feature_selection: true          # CRITICAL: Enable to reduce features
+  n_features: 30                   # Max 30 features (25-30 recommended)
+
+# Model Training - OPTIMIZED for GTX 1050 Ti
+model_training:
+  # Only use XGBoost and Random Forest (skip LSTM and Linear)
+  model_types: ["xgb", "rf"]
+  
+  # Validation settings
+  validation_method: "timeseries"
+  test_size: 0.3                   # More test data
+  n_splits: 3                      # Reduced from 5
+  
+  # DISABLE hyperparameter optimization to save memory
+  hyperparameter_optimization: false
+  
+  # Model directory
+  models_dir: "ml/models"
+  
+  # GPU Memory Management
+  gpu_memory_limit_mb: 3072        # 3GB limit (leave 1GB for system)
+  
+  # XGBoost Optimized Parameters with GPU
+  xgboost_params:
+    n_estimators: 100
+    max_depth: 6
+    learning_rate: 0.1
+    subsample: 0.8
+    colsample_bytree: 0.8
+    tree_method: "gpu_hist"        # Use GPU acceleration
+    predictor: "gpu_predictor"     # GPU prediction
+    random_state: 42
+  
+  # Random Forest Optimized Parameters
+  random_forest_params:
+    n_estimators: 50               # Reduced from 100
+    max_depth: 8                   # Limited depth
+    min_samples_split: 5
+    min_samples_leaf: 2
+    n_jobs: -1                     # Use all CPU cores
+    random_state: 42
+  
+  # LSTM Parameters (if you want to try, but NOT RECOMMENDED for 1050 Ti)
+  lstm_params:
+    sequence_length: 20            # Reduced from 50
+    batch_size: 16                 # Small batch size
+    units: [32, 16]                # Very small architecture
+    epochs: 50                     # Limited epochs
+    dropout: 0.2
+    early_stopping_patience: 5
+
+# Prediction Settings
+prediction:
+  # Only use trained models
+  model_types: ["xgb", "rf"]
+  
+  # Prediction thresholds
+  confidence_threshold: 0.7
+  
+  # Ensemble configuration
+  use_ensemble: true
+  ensemble_weights:
+    xgb: 0.6                       # XGBoost gets higher weight
+    rf: 0.4                        # Random Forest lower weight
+  
+  # Cache settings
+  prediction_cache_size: 50        # Small cache
+
+# Performance Notes for GTX 1050 Ti:
+# - XGBoost with GPU: ~1-2 minutes training
+# - Random Forest: ~2-3 minutes training  
+# - Memory usage: ~2-3GB GPU, 3-4GB RAM
+# - Accuracy: Still excellent with reduced features
+# 
+# If still having memory issues, try:
+# 1. Reduce n_features to 25
+# 2. Remove 'rf' and only use 'xgb'
+# 3. Reduce xgboost n_estimators to 50
+# 4. Use only 1 lookback period: [20]
