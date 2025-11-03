@@ -9,15 +9,40 @@ general:
 # Exchange Configuration
 exchanges:
   binance:
-    enabled: true
+    enabled: false  # Disable Binance, use AsterDEX
+    type: "futures"  # spot or futures
     markets: ["BTC/USDT", "ETH/USDT", "BNB/USDT"]
     timeframes: ["1m", "5m", "15m", "1h", "4h", "1d"]
     testnet: true
     
   asterdex:
-    enabled: false
-    markets: []
-    timeframes: ["5m", "15m", "1h"]
+    enabled: true  # Primary exchange
+    type: "futures"  # Futures trading
+    base_url: "https://fapi.asterdex.com"
+    ws_url: "wss://fstream.asterdex.com"
+    markets: ["BTC/USDT", "ETH/USDT"]
+    timeframes: ["1m", "5m", "15m", "1h"]
+    
+    # Futures Configuration
+    futures:
+      leverage: 10  # Default 10x leverage (conservative)
+      max_leverage: 125  # Maximum allowed
+      margin_type: "ISOLATED"  # ISOLATED or CROSS
+      hedge_mode: false  # One-way mode (simpler)
+      position_mode: "ONE_WAY"  # ONE_WAY or HEDGE
+      
+    # Rate Limits (as per AsterDEX docs)
+    rate_limits:
+      requests_per_minute: 2400
+      orders_per_minute: 1200
+      weight_per_minute: 2400
+      
+    # API Settings
+    api:
+      recv_window: 5000  # milliseconds
+      timeout: 30  # seconds
+      retry_attempts: 3
+      retry_delay: 1  # seconds
 
 # Trading Strategy Configuration
 strategies:
