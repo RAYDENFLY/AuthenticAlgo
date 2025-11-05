@@ -25,6 +25,30 @@
 - 💰 **Small Capital Trading**: Start with just $5 using leverage
 - ⚡ **High Performance**: Async operations, GPU acceleration for ML
 
+---
+
+## 🚀 Quantum Leap V6 Model (ML Ensemble)
+
+**Quantum Leap V6** adalah generasi terbaru dari sistem Machine Learning di AuthenticAlgo, dirancang khusus untuk trading kripto berisiko tinggi dengan fitur-fitur canggih:
+
+- **Multi-Scale Deep Features**: Menggabungkan fitur teknikal klasik (RSI, MACD, ATR, dll) dengan deep features dari TCN (Temporal Convolutional Network) dan Transformer Attention.
+- **Ensemble Learning**: Menggunakan kombinasi XGBoost, LightGBM, dan CatBoost, dengan bobot otomatis (weighted voting) untuk hasil prediksi yang lebih stabil.
+- **Feature Selection Otomatis**: Seleksi fitur berbasis statistik (f_classif) untuk memilih fitur paling relevan dari ratusan kandidat.
+- **Online Learning**: Model dapat di-update secara real-time tanpa retrain penuh, cocok untuk market yang sangat dinamis.
+- **GPU Acceleration**: Optimasi penuh untuk GPU (NVIDIA GTX 1050 Ti ke atas), mempercepat training dan inference.
+- **Robust Error Handling**: Pipeline anti-error, fallback otomatis jika ada data/fitur yang tidak valid.
+- **Configurable & Modular**: Semua parameter (durasi, learning rate, symbol, dsb) bisa diatur lewat YAML config/env.
+
+**Keunggulan Quantum Leap V6:**
+- Akurasi & AUC tinggi (target 80-85%+)
+- Adaptif terhadap perubahan market
+- Siap untuk deployment production (paper/live trading)
+- Laporan PDF otomatis dalam Bahasa Indonesia
+
+> _"Quantum Leap V6 menggabungkan kekuatan deep learning, ensemble, dan online learning untuk hasil trading yang lebih konsisten dan adaptif di pasar kripto."_
+
+---
+
 ## 🏢 Supported Exchanges
 
 ### 1. **AsterDEX Futures** ⭐ (Primary)
