@@ -1,3 +1,138 @@
+import aiohttp
+import asyncio
+from typing import Dict, Any
+import json
+
+class SafeAsterDEXFutures:
+    """Wrapper aman untuk AsterDEXFutures dengan parameter cleaning"""
+    def __init__(self, config):
+        from execution.asterdex import AsterDEXFutures
+        self.exchange = AsterDEXFutures(config)
+        self.base_url = getattr(self.exchange, 'base_url', 'https://fapi.asterdex.com')
+    def _clean_params(self, params):
+        if params is None:
+            return {}
+        return {k: str(v) for k, v in params.items() if v is not None and k is not None}
+    def _clean_headers(self, headers):
+        if headers is None:
+            return {}
+        return {str(k): str(v) for k, v in headers.items() if k is not None and v is not None}
+    async def get_klines_safe(self, symbol: str, interval: str, limit: int = 500, start_time: int = None, end_time: int = None):
+        try:
+            params = {"symbol": symbol, "interval": interval, "limit": limit}
+            if start_time:
+                params["startTime"] = start_time
+            if end_time:
+                params["endTime"] = end_time
+            clean_params = self._clean_params(params)
+            endpoint = "/fapi/v1/klines"
+            url = f"{self.base_url}{endpoint}"
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, params=clean_params, headers=self._clean_headers(getattr(self.exchange, '_get_headers', lambda: {})()), timeout=aiohttp.ClientTimeout(total=15)) as response:
+                    if response.status == 200:
+                        return await response.json()
+                    else:
+                        return None
+        except Exception as e:
+            logger.error(f"❌ Error in get_klines_safe: {e}")
+            return None
+
+    async def get_ticker_24h_safe(self, symbol=None):
+        try:
+            params = {}
+            if symbol:
+                params['symbol'] = symbol
+            clean_params = self._clean_params(params)
+            endpoint = "/fapi/v1/ticker/24hr"
+            url = f"{self.base_url}{endpoint}"
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, params=clean_params, headers=self._clean_headers(getattr(self.exchange, '_get_headers', lambda: {})()), timeout=aiohttp.ClientTimeout(total=10)) as response:
+                    if response.status == 200:
+                        return await response.json()
+                    else:
+                        return None
+        except Exception as e:
+            logger.error(f"❌ Error in get_ticker_24h_safe: {e}")
+            return None
+
+    async def get_symbols_safe(self):
+        try:
+            endpoint = "/fapi/v1/exchangeInfo"
+            url = f"{self.base_url}{endpoint}"
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, timeout=aiohttp.ClientTimeout(total=10)) as response:
+                    if response.status == 200:
+                        data = await response.json()
+                        return [s['symbol'] for s in data.get('symbols', [])]
+                    else:
+                        return []
+        except Exception as e:
+            logger.error(f"❌ Error in get_symbols_safe: {e}")
+            return []
+
+    async def get_orderbook_safe(self, symbol: str, limit: int = 20):
+        try:
+            params = {"symbol": symbol, "limit": limit}
+            clean_params = self._clean_params(params)
+            endpoint = "/fapi/v1/depth"
+            url = f"{self.base_url}{endpoint}"
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, params=clean_params, headers=self._clean_headers(getattr(self.exchange, '_get_headers', lambda: {})()), timeout=aiohttp.ClientTimeout(total=10)) as response:
+                    if response.status == 200:
+                        return await response.json()
+                    else:
+                        return None
+        except Exception as e:
+            logger.error(f"❌ Error in get_orderbook_safe: {e}")
+            return None
+
+    async def get_trades_safe(self, symbol: str, limit: int = 50):
+        try:
+            params = {"symbol": symbol, "limit": limit}
+            clean_params = self._clean_params(params)
+            endpoint = "/fapi/v1/trades"
+            url = f"{self.base_url}{endpoint}"
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, params=clean_params, headers=self._clean_headers(getattr(self.exchange, '_get_headers', lambda: {})()), timeout=aiohttp.ClientTimeout(total=10)) as response:
+                    if response.status == 200:
+                        return await response.json()
+                    else:
+                        return []
+        except Exception as e:
+            logger.error(f"❌ Error in get_trades_safe: {e}")
+            return []
+
+    async def get_funding_rate_safe(self, symbol: str):
+        try:
+            params = {"symbol": symbol}
+            clean_params = self._clean_params(params)
+            endpoint = "/fapi/v1/premiumIndex"
+            url = f"{self.base_url}{endpoint}"
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, params=clean_params, headers=self._clean_headers(getattr(self.exchange, '_get_headers', lambda: {})()), timeout=aiohttp.ClientTimeout(total=10)) as response:
+                    if response.status == 200:
+                        return await response.json()
+                    else:
+                        return None
+        except Exception as e:
+            logger.error(f"❌ Error in get_funding_rate_safe: {e}")
+            return None
+
+    async def get_index_price_safe(self, symbol: str):
+        try:
+            params = {"symbol": symbol}
+            clean_params = self._clean_params(params)
+            endpoint = "/fapi/v1/indexPrice"
+            url = f"{self.base_url}{endpoint}"
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, params=clean_params, headers=self._clean_headers(getattr(self.exchange, '_get_headers', lambda: {})()), timeout=aiohttp.ClientTimeout(total=10)) as response:
+                    if response.status == 200:
+                        return await response.json()
+                    else:
+                        return None
+        except Exception as e:
+            logger.error(f"❌ Error in get_index_price_safe: {e}")
+            return None
 """
 AsterDEX Data Collector
 Collects historical and real-time market data from AsterDEX Futures
@@ -19,22 +154,116 @@ setup_logger()
 
 
 class AsterDEXDataCollector:
+    async def get_klines_safe(
+        self,
+        symbol: str,
+        interval: str = '1h',
+        limit: int = 500,
+        start_time: int = None,
+        end_time: int = None
+    ):
+        """Safe method untuk get klines data dari AsterDEX"""
+        import aiohttp
+        try:
+            valid_intervals = ['1m', '3m', '5m', '15m', '30m', '1h', '2h', '4h', '6h', '8h', '12h', '1d', '3d', '1w', '1M']
+            if interval not in valid_intervals:
+                logger.error(f"❌ Interval {interval} tidak valid. Gunakan: {valid_intervals}")
+                return None
+            params = {
+                'symbol': symbol,
+                'interval': interval,
+                'limit': min(limit, 1500)
+            }
+            if start_time:
+                params['startTime'] = start_time
+            if end_time:
+                params['endTime'] = end_time
+            clean_params = self._clean_params(params)
+            endpoint = "/fapi/v1/klines"
+            url = f"{self.exchange.base_url}{endpoint}"
+            logger.info(f"📊 Fetching klines: {symbol} {interval}")
+            logger.info(f"Params: {clean_params}")
+            async with aiohttp.ClientSession() as session:
+                async with session.get(
+                    url,
+                    params=clean_params,
+                    headers=self._get_headers(),
+                    timeout=aiohttp.ClientTimeout(total=15)
+                ) as response:
+                    if response.status == 200:
+                        data = await response.json()
+                        logger.info(f"✅ Successfully fetched {len(data)} klines")
+                        return data
+                    else:
+                        error_text = await response.text()
+                        logger.error(f"❌ HTTP {response.status}: {error_text}")
+                        return None
+        except aiohttp.ClientError as e:
+            logger.error(f"❌ Network error: {e}")
+            return None
+        except asyncio.TimeoutError:
+            logger.error("❌ Request timeout")
+            return None
+        except Exception as e:
+            logger.error(f"❌ Unexpected error: {e}")
+            return None
+    def _clean_params(self, params):
+        """Bersihkan parameter dari None values"""
+        if params is None:
+            return {}
+        return {k: v for k, v in params.items() if v is not None and k is not None}
+
+    async def get_ticker_24h_safe(self, symbol=None):
+        import aiohttp, asyncio
+        try:
+            params = {}
+            if symbol:
+                params['symbol'] = symbol
+            clean_params = self._clean_params(params)
+            endpoint = "/fapi/v1/ticker/24hr"
+            url = f"{self.exchange.base_url}{endpoint}"
+            raw_headers = getattr(self.exchange, '_get_headers', lambda: {})()
+            clean_headers = {str(k): str(v) for k, v in raw_headers.items() if k is not None and v is not None}
+            logger.info(f"🔄 Fetching ticker data from: {url}")
+            logger.info(f"Parameters: {clean_params}")
+            logger.info(f"Headers: {clean_headers}")
+            async with aiohttp.ClientSession() as session:
+                async with session.get(
+                    url,
+                    params=clean_params,
+                    headers=clean_headers,
+                    timeout=aiohttp.ClientTimeout(total=10)
+                ) as response:
+                    if response.status == 200:
+                        data = await response.json()
+                        logger.info(f"✅ Successfully fetched ticker data")
+                        return data
+                    else:
+                        logger.error(f"❌ HTTP {response.status}: {await response.text()}")
+                        return None
+        except aiohttp.ClientError as e:
+            logger.error(f"❌ Network error: {e}")
+            return None
+        except asyncio.TimeoutError:
+            logger.error("❌ Request timeout")
+            return None
+        except Exception as e:
+            logger.error(f"❌ Unexpected error in get_ticker_24h_safe: {e}")
+            return None
     """
     Collects market data from AsterDEX Futures exchange
     """
     
     def __init__(self, config: Dict[str, Any]):
         """
-        Initialize AsterDEX data collector
-        
+        Initialize AsterDEX data collector (now uses SafeAsterDEXFutures)
         Args:
             config: Configuration dictionary with API credentials
         """
-        self.exchange = AsterDEXFutures(config)
+        self.exchange = SafeAsterDEXFutures(config)
         self.data_dir = Path("data/historical")
         self.data_dir.mkdir(parents=True, exist_ok=True)
-        
-        logger.info("✅ AsterDEX Data Collector initialized")
+        logger.info("✅ AsterDEX Data Collector initialized (Safe Wrapper)")
     
     async def collect_klines(
         self,

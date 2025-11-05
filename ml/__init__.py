@@ -6,9 +6,16 @@ Feature engineering, model training, and prediction for trading strategies
 import pandas as pd
 from core.logger import get_logger
 
-from ml.feature_engine import FeatureEngine
-from ml.model_trainer import ModelTrainer
-from ml.predictor import Predictor
+# V5.0 Components available for direct import
+# from ml.temporal_cnn import TCNFeatureExtractor
+# from ml.attention import AttentionFeatureExtractor
+# from ml.rl_optimizer import RLThresholdOptimizer
+# from ml.uncertainty import UncertaintyAwarePredictor
+
+# Legacy components (commented out to avoid circular import)
+# from ml.feature_engine import FeatureEngine
+# from ml.model_trainer import ModelTrainer
+# from ml.predictor import Predictor
 
 
 class MLModule:
@@ -41,6 +48,10 @@ class MLModule:
     
     def __init__(self, config: dict):
         """Initialize ML module with configuration"""
+        from ml.feature_engine import FeatureEngine
+        from ml.model_trainer import ModelTrainer
+        from ml.predictor import Predictor
+        
         self.config = config
         self.logger = get_logger()
         
@@ -101,5 +112,5 @@ class MLModule:
         return self.predictor.get_prediction_stats()
 
 
-__all__ = ['MLModule', 'FeatureEngine', 'ModelTrainer', 'Predictor']
+__all__ = ['MLModule']
 

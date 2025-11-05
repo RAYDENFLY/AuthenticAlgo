@@ -1,0 +1,2 @@
+Symbol,Timestamp,Best_Model,Best_Accuracy,XGBoost_Accuracy,RandomForest_Accuracy,LightGBM_Accuracy,Data_Points
+AVAXUSDT,2025-11-03T23:58:06.886562,random_forest,0.531578947368421,,0.531578947368421,,950

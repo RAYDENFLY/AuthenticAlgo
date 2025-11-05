@@ -1,0 +1,16 @@
+# Core Data Science
+pandas>=1.4.0
+numpy>=1.20.0
+scikit-learn>=1.0.0
+
+# Async & Web
+aiohttp>=3.8.0
+asyncio
+
+# Utilities  
+python-dateutil>=2.8.0
+pathlib2>=2.3.0; python_version < '3.4'
+
+# ML Libraries
+xgboost>=1.5.0
+lightgbm>=3.3.0

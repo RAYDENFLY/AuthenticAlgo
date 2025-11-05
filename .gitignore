@@ -3,7 +3,8 @@
 .env.local
 .env.*.local
 .venv/
-
+web/node_modules
+web/.next/
 # Python
 __pycache__/
 *.py[cod]

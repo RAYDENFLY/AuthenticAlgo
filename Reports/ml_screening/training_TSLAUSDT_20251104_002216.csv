@@ -1,0 +1,2 @@
+Symbol,Timestamp,Best_Model,Best_Accuracy,XGBoost_Accuracy,RandomForest_Accuracy,LightGBM_Accuracy,Data_Points
+TSLAUSDT,2025-11-04T00:22:15.702709,lightgbm,0.7272727272727273,0.7107438016528925,0.6942148760330579,0.7272727272727273,602

@@ -5,6 +5,7 @@ Logging setup for Bot Trading V2
 import sys
 from pathlib import Path
 from typing import Optional
+import os
 from loguru import logger
 
 
@@ -12,8 +13,8 @@ def setup_logger(
     log_level: str = "INFO",
     log_to_file: bool = True,
     log_file_path: Optional[str] = None,
-    rotation: str = "1 day",
-    retention: str = "30 days",
+    rotation: Optional[str] = None,
+    retention: Optional[str] = None,
 ):
     """
     Setup logger with custom configuration
@@ -44,18 +45,27 @@ def setup_logger(
         if log_file_path is None:
             base_path = Path(__file__).parent.parent
             log_file_path = base_path / "logs" / "trading_bot.log"
-        
+
         # Create logs directory if it doesn't exist
         Path(log_file_path).parent.mkdir(parents=True, exist_ok=True)
-        
-        logger.add(
-            log_file_path,
-            format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {module}:{function}:{line} - {message}",
-            level=log_level,
-            rotation=rotation,
-            retention=retention,
-            compression="zip",
-        )
+
+        # If rotation is not provided, add a simple non-rotating file sink to avoid
+        # Windows file-lock rename PermissionError during short demo runs.
+        if rotation:
+            logger.add(
+                log_file_path,
+                format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {module}:{function}:{line} - {message}",
+                level=log_level,
+                rotation=rotation,
+                retention=retention,
+                compression="zip",
+            )
+        else:
+            logger.add(
+                log_file_path,
+                format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {module}:{function}:{line} - {message}",
+                level=log_level,
+            )
     
     logger.info(f"Logger initialized with level: {log_level}")
     return logger

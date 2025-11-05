@@ -1,0 +1,2 @@
+Symbol,Timestamp,Best_Model,Best_Accuracy,XGBoost_Accuracy,RandomForest_Accuracy,LightGBM_Accuracy,Data_Points
+TAKEUSDT,2025-11-04T00:21:55.040276,random_forest,0.6212121212121212,0.553030303030303,0.6212121212121212,0.5909090909090909,660

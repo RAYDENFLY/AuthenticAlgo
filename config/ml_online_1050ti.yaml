@@ -1,0 +1,37 @@
+# ML Online Learning Config for GTX 1050 Ti
+# Save as config/ml_online_1050ti.yaml
+
+feature_engineering:
+  lookback_periods: [5, 10, 20]
+  technical_indicators: [rsi, macd, bollinger_bands, atr]
+  price_features: [returns, volatility, momentum]
+  volume_features: [volume_ratio, volume_velocity]
+  time_features: [hour, day_of_week, is_weekend]
+  feature_scaling: standard
+  feature_selection: true
+  n_features: 30
+
+model_training:
+  model_types: [xgb, rf, linear]
+  validation_method: timeseries
+  test_size: 0.2
+  n_splits: 5
+  hyperparameter_optimization: true
+  models_dir: ml/models
+  device: cuda  # Force GPU usage if available
+
+prediction:
+  model_types: [xgb, rf, linear]
+  confidence_threshold: 0.7
+  use_ensemble: true
+  ensemble_weights:
+    xgb: 0.5
+    rf: 0.3
+    linear: 0.2
+
+# Online learning duration (hours)
+duration_hours: 1
+
+# Hardware preference
+prefer_gpu: true
+preferred_device: gtx1050ti
